@@ -2,21 +2,19 @@ const loadFood = async () => {
     const text = document.getElementById('input');
     const foodName = text.value.toLowerCase();
     if (foodName == '') {
-        const errorMessage = document.createElement('h3');
-        errorMessage.classList.add('text-center');
-        errorMessage.classList.add('text-light');
-        errorMessage.classList.add('mt-3');
-        errorMessage.innerHTML = `No Search Input, Please input a food name!!`;
-        const mealsDiv = document.getElementById("error");
-        mealsDiv.appendChild(errorMessage);
+        alert("No Input! Please Input a food Name.");
     }
     else {
         const url = `https://www.themealdb.com/api/json/v1/1/search.php?s=${foodName}`;
         const res = await fetch(url);
         const data = await res.json();
-        displayFoods(data);
+        if (data.meals == null) {
+            alert("Not Found");
+        }
+        else {
+            displayFoods(data);
+        }
         text.value = '';
-        document.getElementById('error').innerHTML = '';
     }
 }
 
@@ -29,7 +27,7 @@ const displayFoods = (data) => {
         const div = document.createElement('div');
         div.classList.add('col');
         div.innerHTML = `
-            <div onclick="loadDetail(${food.idMeal})" class="card" style="cursor:pointer";>
+            <div onclick="loadDetail(${food.idMeal})" data-bs-toggle="modal" data-bs-target="#exampleModal" class="card" style="cursor:pointer";>
                 <img height="50%" src="${food.strMealThumb}" class="card-img-top" alt="...">
                 <div class="card-body">
                 <h5 class="card-title">${food.strMeal}</h5>
@@ -49,18 +47,14 @@ const loadDetail = async (id) => {
 }
 
 const detail = (data) => {
-    const detailShow = document.getElementById('detail');
-    const detailCard = document.createElement('div');
-    detailShow.innerHTML = '';
-    detailCard.innerHTML = `
-    <div class="card" style="width: 65%; margin: auto">
-    <img src="${data.meals[0].strMealThumb}" class="card-img-top" alt="...">
-    <div class="card-body">
-      <h5 class="card-title">${data.meals[0].strMeal}</h5>
-      <p class="card-text">${data.meals[0].strInstructions.slice(0, 101)}</p>
-      <a href="#" class="btn btn-primary">Go somewhere</a>
-    </div>
-  </div>
+    const modalHeader = document.getElementById('modalHeader');
+    const modalBody = document.getElementById('modalBody');
+    modalHeader.innerHTML = `
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        `
+    modalBody.innerHTML = `
+        <img width="300px" src="${data.meals[0].strMealThumb}" />
+        <h2>${data.meals[0].strMeal}</h2>
+        <p>${data.meals[0].strInstructions}</p>
     `
-    detailShow.appendChild(detailCard);
 }
